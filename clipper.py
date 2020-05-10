@@ -3,6 +3,7 @@ from time import sleep
 from os import path
 from fnmatch import fnmatch
 import logging
+import traceback
 from urlextract import URLExtract
 
 # setup logging
@@ -37,26 +38,23 @@ def main():
         try:
             copied = paste()
             if copied != last_copied:
-                logger.info(f'User copied: {copied}')
+                log_copied = copied.split('\n')[0][:70]
+                logger.info(f'User copied: {log_copied}')
                 if copied == exit_string:
                     logger.info('User exited program')
                     break
                 with open(out_file, 'a', encoding='utf-8') as fh:
                     for url in url_extractor(copied):
-                        fh.write(url, + '\n')
+                        fh.write(url + '\n')
 
-                # for p in patterns:
-                #     if fnmatch(copied, p):
-                #         with open(out_file, 'a', encoding='utf-8') as fh:
-                #             fh.write(copied + '\n')
                 last_copied = copied
         except OSError as e:
             logger.error(f'Could not open file: {out_file}')
             logger.error(str(e))
-            logger.error(e.__traceback__)
+            logger.error(''.join(traceback.format_tb(e.__traceback__)))
         except Exception as e:
             logger.error(str(e))
-            logger.error(e.__traceback__)
+            logger.error(''.join(traceback.format_tb(e.__traceback__)))
 
         sleep(delay)
 
@@ -69,4 +67,4 @@ if __name__ == '__main__':
     except Exception as e:
         logger.error('Unhandled exception, program exited. Info follows.')
         logger.error(str(e))
-        logger.error(e.__traceback__)
+        logger.error(''.join(traceback.format_tb(e.__traceback__)))
