@@ -3,6 +3,7 @@ from time import sleep
 from os import path
 from fnmatch import fnmatch
 import logging
+from urlextract import URLExtract
 
 # setup logging
 logger = logging.getLogger('clipper')
@@ -31,6 +32,7 @@ def main():
     last_copied = paste()
     current_directory = path.dirname(path.normpath(__file__))
     out_file = path.join(current_directory, 'clipped.txt')
+    url_extractor = URLExtract().find_urls
     while True:
         try:
             copied = paste()
@@ -39,10 +41,14 @@ def main():
                 if copied == exit_string:
                     logger.info('User exited program')
                     break
-                for p in patterns:
-                    if fnmatch(copied, p):
-                        with open(out_file, 'a', encoding='utf-8') as fh:
-                            fh.write(copied + '\n')
+                with open(out_file, 'a', encoding='utf-8') as fh:
+                    for url in url_extractor(copied):
+                        fh.write(url, + '\n')
+
+                # for p in patterns:
+                #     if fnmatch(copied, p):
+                #         with open(out_file, 'a', encoding='utf-8') as fh:
+                #             fh.write(copied + '\n')
                 last_copied = copied
         except OSError as e:
             logger.error(f'Could not open file: {out_file}')
