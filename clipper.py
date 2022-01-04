@@ -47,8 +47,6 @@ exit_string = '!EXIT'
 def main():
     "main loop, 'listens' to the clipboard. saves copied URLs to a text file"
     last_copied = paste()
-    # current_directory = path.dirname(path.normpath(__file__))
-    # out_file = path.join(current_directory, 'clipped.txt')
     out_file = data_dir / f'copied_{date_prefix}.txt'
     logger.info('saving to file: %s', out_file)
     url_extractor = URLExtract().find_urls
