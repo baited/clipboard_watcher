@@ -1,15 +1,31 @@
-from clipboard import paste
-from time import sleep
-from os import path
-from fnmatch import fnmatch
 import logging
+import sys
 import traceback
+from datetime import datetime
+from os import path
+from pathlib import Path
+from time import sleep
+
+from pyperclip import paste
 from urlextract import URLExtract
+
+# get data directory
+if getattr(sys, 'frozen', False):
+    # running in a bundle
+    data_dir = Path.home() / 'Documents' / 'clipboard_watcher'
+    data_dir.mkdir(parents=True, exist_ok=True)
+else:
+    # running in a normal Python environment
+    data_dir = Path(__file__).parent
+
+# date prefix for file names
+date_prefix = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+print(f'{date_prefix = } {type(date_prefix) = }')
 
 # setup logging
 logger = logging.getLogger('clipper')
 logger.setLevel(logging.DEBUG)
-logger_file = path.join(path.dirname(path.normpath(__file__)), 'clipper.log')
+logger_file = path.join(data_dir / f'log_{date_prefix}.txt')
 logger_fh = logging.FileHandler(logger_file)
 logger_fh.setLevel(logging.DEBUG)
 logger_ch = logging.StreamHandler()
@@ -31,8 +47,10 @@ exit_string = '!EXIT'
 def main():
     "main loop, 'listens' to the clipboard. saves copied URLs to a text file"
     last_copied = paste()
-    current_directory = path.dirname(path.normpath(__file__))
-    out_file = path.join(current_directory, 'clipped.txt')
+    # current_directory = path.dirname(path.normpath(__file__))
+    # out_file = path.join(current_directory, 'clipped.txt')
+    out_file = data_dir / f'copied_{date_prefix}.txt'
+    logger.info('saving to file: %s', out_file)
     url_extractor = URLExtract().find_urls
     while True:
         try:
@@ -57,6 +75,7 @@ def main():
             logger.error(''.join(traceback.format_tb(e.__traceback__)))
 
         sleep(delay)
+
 
 if __name__ == '__main__':
     try:

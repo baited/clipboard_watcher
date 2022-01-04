@@ -1,3 +1,7 @@
 clipper.log
 clipped.txt
 .vscode
+/build/
+/dist/
+copied_*.txt
+log_*.txt
