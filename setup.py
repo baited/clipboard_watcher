@@ -37,7 +37,7 @@ bdist_msi_options = {
 
 setup(
     name="clipboard watcher",
-    version="0.1",
+    version="1",
     description="watches the clipboard",
     options={
         "build_exe": build_exe_options,
